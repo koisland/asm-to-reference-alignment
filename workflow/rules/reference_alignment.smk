@@ -9,7 +9,12 @@ df.asm = df.asm.map(os.path.abspath)
 df["asm"] = df.asm.str.split(",")
 df = df.explode("asm")
 df["num"] = df.groupby(level=0).cumcount() + 1
-df.set_index(df["sample"] + "_" + df["num"].astype(str), inplace=True)
+if len(df["num"].unique()) > 1:
+    new_index = df["sample"] + "_" + df["num"].astype(str)
+else:
+    new_index = df["sample"].astype(str)
+
+df.set_index(new_index, inplace=True)
 
 
 wildcard_constraints:
