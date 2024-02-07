@@ -18,7 +18,7 @@ df.set_index(new_index, inplace=True)
 
 
 wildcard_constraints:
-    i="\d+",
+    i="\\d+",
     sm="|".join(df.index) + "|" + "|".join(df["sample"].str.strip()),
 
 
@@ -64,10 +64,10 @@ rule alignment:
         mm2_opts=config.get("mm2_opts", "-x asm20 --secondary=no -s 25000 -K 8G"),
     shell:
         """
-        minimap2 -t {threads} -a --eqx --cs \
+        {{ minimap2 -t {threads} -a --eqx --cs \
             {params.mm2_opts} \
             {input.ref} {input.query} \
-            | samtools view -F 4 -b - \
+            | samtools view -F 4 -b -;}} \
             > {output.aln} 2> {log}
         """
 
@@ -92,7 +92,7 @@ rule alignment2:
     shell:
         """
         if [ {params.second_aln} == "yes" ]; then
-          minimap2 -t {threads} -a --eqx --cs \
+          {{ minimap2 -t {threads} -a --eqx --cs \
               {params.mm2_opts} \
               <(seqtk seq \
                   -M <(samtools view -h {input.aln} | paftools.js sam2paf - | cut -f 6,8,9 | bedtools sort -i -) \
@@ -102,7 +102,7 @@ rule alignment2:
                   -M <(samtools view -h {input.aln} | paftools.js sam2paf - | cut -f 1,3,4 | bedtools sort -i -) \
                   -n "N" {input.query} \
               ) \
-              | samtools view -F 4 -b - \
+              | samtools view -F 4 -b -;}}\
               > {output.aln} 2> {log}
         else
           samtools view -b -H {input.aln} > {output.aln}
