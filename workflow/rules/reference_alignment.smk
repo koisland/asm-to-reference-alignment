@@ -52,7 +52,7 @@ rule alignment:
         ref=get_ref,
         query=get_asm,
     output:
-        aln=temp("temp/{ref}/{sm}.bam"),
+        aln="temp/{ref}/{sm}.bam",
     log:
         "logs/alignment.{ref}_{sm}.log",
     benchmark:
@@ -78,7 +78,7 @@ rule alignment2:
         query=get_asm,
         aln=rules.alignment.output.aln,
     output:
-        aln=temp("temp/{ref}/{sm}.2.bam"),
+        aln="temp/{ref}/{sm}.2.bam",
     log:
         "logs/alignment.{ref}_{sm}.2.log",
     benchmark:
