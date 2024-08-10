@@ -27,7 +27,7 @@ def get_asm(wc):
 
 
 def get_ref(wc):
-    return ancient(config.get("ref")[wc.ref])
+    return config.get("ref")[wc.ref]
 
 
 def get_fai(wc):
@@ -46,7 +46,6 @@ rule alignment_index:
         "minimap2 -t {threads} -ax asm20 -d {output.mmi} {input.ref}"
 
 
-# ref=ancient(rules.alignment_index.output.mmi),
 rule alignment:
     input:
         ref=get_ref,
