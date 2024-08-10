@@ -1,5 +1,3 @@
-include: "reference_alignment.smk"
-
 
 rule SafFire:
     input:
