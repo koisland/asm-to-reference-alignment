@@ -2,14 +2,14 @@
 
 rule alignment:
     input:
-        ref=get_ref,
-        query=get_asm,
+        ref=lambda wc: REFERENCES[str(wc.ref)],
+        query=lambda wc: SAMPLES[str(wc.sm)],
     output:
-        aln="temp/{ref}/{sm}.bam",
+        aln=os.path.join(TEMP_DIR, "{ref}", "{sm}.bam"),
     log:
-        "logs/alignment.{ref}_{sm}.log",
+        os.path.join(LOGS_DIR, "alignment_{ref}_{sm}.log"),
     benchmark:
-        "benchmarks/alignment.{ref}_{sm}.benchmark.tsv"
+        os.path.join(BENCHMARK_DIR, "alignment_{ref}_{sm}.tsv")
     conda:
         "../envs/env.yml"
     threads: config.get("aln_threads", 4)
@@ -25,103 +25,51 @@ rule alignment:
         """
 
 
-rule alignment2:
+rule bam_to_paf:
     input:
-        ref_fasta=get_ref,
-        query=get_asm,
         aln=rules.alignment.output.aln,
     output:
-        aln="temp/{ref}/{sm}.2.bam",
+        paf=os.path.join(OUTPUT_DIR, "{ref}/paf/{sm}.paf"),
     log:
-        "logs/alignment.{ref}_{sm}.2.log",
-    benchmark:
-        "benchmarks/alignment.{ref}_{sm}.2.benchmark.tsv"
-    conda:
-        "../envs/env.yml"
-    threads: config.get("aln_threads", 4)
-    params:
-        mm2_opts=config.get("mm2_opts", "-x asm20 --secondary=no -s 25000 -K 8G"),
-        second_aln=config.get("second_aln", "no"),
-    shell:
-        """
-        if [ {params.second_aln} == "yes" ]; then
-          {{ minimap2 -t {threads} -a --eqx --cs \
-              {params.mm2_opts} \
-              <(seqtk seq \
-                  -M <(samtools view -h {input.aln} | paftools.js sam2paf - | cut -f 6,8,9 | bedtools sort -i -) \
-                  -n "N" {input.ref_fasta} \
-              ) \
-              <(seqtk seq \
-                  -M <(samtools view -h {input.aln} | paftools.js sam2paf - | cut -f 1,3,4 | bedtools sort -i -) \
-                  -n "N" {input.query} \
-              ) \
-              | samtools view -F 4 -b -;}}\
-              > {output.aln} 2> {log}
-        else
-          samtools view -b -H {input.aln} > {output.aln}
-        fi
-        """
-
-
-rule compress_sam:
-    input:
-        aln=rules.alignment.output.aln,
-        aln2=rules.alignment2.output.aln,
-    output:
-        aln="results/{ref}/bam/{sm}.bam",
-    threads: 1  # dont increase this, it will break things randomly 
+        os.path.join(LOGS_DIR, "bam_to_paf_{ref}_{sm}.log"),
     conda:
         "../envs/env.yml"
     shell:
         """
-        samtools cat {input.aln} {input.aln2} \
-                 -o {output.aln}
-        """
-        # for some reason if I sort some cigars are turned into M instead of =/X
-        #| samtools sort -m 8G --write-index \
-
-
-rule sam_to_paf:
-    input:
-        aln=rules.compress_sam.output.aln,
-    output:
-        paf="results/{ref}/paf/{sm}.paf",
-    conda:
-        "../envs/env.yml"
-    shell:
-        """
-        samtools view -h {input.aln} \
-            | paftools.js sam2paf - \
-        > {output.paf}
+        {{ samtools view -h {input.aln} | paftools.js sam2paf - ;}} > {output.paf} 2> {log}
         """
 
 
 rule trim_and_break_paf:
     input:
-        paf=rules.sam_to_paf.output.paf,
+        paf=rules.bam_to_paf.output.paf,
     output:
-        paf="results/{ref}/paf_trim_and_break/{sm}.paf",
+        paf=os.path.join(OUTPUT_DIR, "{ref}/paf_trim_and_break/{sm}.paf"),
     conda:
         "../envs/env.yml"
+    log:
+        os.path.join(LOGS_DIR, "trim_and_break_paf_{ref}_{sm}.log"),
     params:
         break_paf=config.get("break_paf", 10_000),
     shell:
         """
-        rustybam trim-paf {input.paf} \
-            | rustybam break-paf --max-size {params.break_paf} \
-        > {output.paf}
+        {{ rb trim-paf {input.paf} \
+            | rb break-paf --max-size {params.break_paf} \
+        ;}} > {output.paf} 2> {log}
         """
 
 
 rule aln_to_bed:
     input:
-        aln=rules.compress_sam.output.aln,
+        aln=rules.alignment.output.aln,
     output:
-        bed="results/{ref}/bed/{sm}.bed",
+        bed=os.path.join(OUTPUT_DIR, "{ref}/bed/{sm}.bed"),
+    log:
+        os.path.join(LOGS_DIR, "aln_to_bed_{ref}_{sm}.log"),
     conda:
         "../envs/env.yml"
     threads: 1
     shell:
         """
-        rb --threads {threads} stats {input.aln} > {output.bed}
+        rb --threads {threads} stats {input.aln} > {output.bed} 2> {log}
         """

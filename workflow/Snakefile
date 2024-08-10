@@ -1,32 +1,33 @@
 import os
 import sys
-import pandas as pd
 from snakemake.utils import min_version
 
 min_version("6.0")
 shell.prefix(f"set -eo pipefail;")
 
-
-include: "rules/common.smk"
-
-
-df = read_sample_tbl()
-
+SAMPLES = config["sm"]
+REFERENCES = config["ref"]
+OUTPUT_DIR = config.get("output_dir", "results")
+LOGS_DIR = config.get("logs_dir", "logs")
+BENCHMARK_DIR = config.get("benchmarks_dir", "benchmarks")
+TEMP_DIR = config.get("temp_dir", "/tmp")
 
 include: "rules/reference_alignment.smk"
 include: "rules/SafFire.smk"
 
 
 wildcard_constraints:
-    i="\\d+",
-    sm="|".join(df.index) + "|" + "|".join(df["sample"].str.strip()),
+    sm="|".join(SAMPLES.keys()),
+    ref="|".join(REFERENCES.keys()),
 
 
 rule all:
     input:
-        expand(rules.aln_to_bed.output, sm=df.index, ref=config.get("ref").keys()),
-        expand(rules.sam_to_paf.output, sm=df.index, ref=config.get("ref").keys()),
+        expand(rules.aln_to_bed.output, sm=SAMPLES.keys(), ref=config.get("ref").keys()),
+        expand(rules.bam_to_paf.output, sm=SAMPLES.keys(), ref=config.get("ref").keys()),
         expand(
-            rules.trim_and_break_paf.output, sm=df.index, ref=config.get("ref").keys()
+            rules.trim_and_break_paf.output,
+            sm=SAMPLES.keys(),
+            ref=config.get("ref").keys(),
         ),
-        expand(rules.SafFire.output, sm=df.index, ref=config.get("ref").keys()),
+        expand(rules.SafFire.output, sm=SAMPLES.keys(), ref=config.get("ref").keys()),
