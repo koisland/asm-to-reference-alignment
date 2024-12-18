@@ -10,6 +10,8 @@ rule alignment:
         os.path.join(LOGS_DIR, "alignment_{ref}_{sm}.log"),
     benchmark:
         os.path.join(BENCHMARK_DIR, "alignment_{ref}_{sm}.tsv")
+    resources:
+        mem=config.get("aln_mem", "12GB")
     conda:
         "../envs/env.yml"
     threads: config.get("aln_threads", 4)

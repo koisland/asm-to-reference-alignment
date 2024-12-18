@@ -8,6 +8,7 @@ sm:
   HG002: .test/HG002_1.fa.gz
   HG00733: .test/HG00733_1.fa.gz
 aln_threads: 8
+aln_mem: 30GB
 mm_opts: "-x asm20 --secondary=no -s 25000 -K 8G"
 break_paf: 5000
 paired_aln_len: 250000
