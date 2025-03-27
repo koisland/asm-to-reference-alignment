@@ -38,6 +38,6 @@ rule ideogram:
     input:
         expand(
             rules.bed_to_pdf.output,
-            sm=df["sample"].str.strip(),
+            sm=SAMPLES.keys(),
             ref=config.get("ref").keys(),
         ),
