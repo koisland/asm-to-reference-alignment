@@ -2,8 +2,8 @@
 rule bed_to_pdf:
     input:
         bed=os.path.join(OUTPUT_DIR, "{ref}/bed/{sm}.bed"),
-        script=workflow.source_path("scripts", "ideogram.R"),
-        chm13_ktype=workflow.source_path("scripts", "chm13.karyo.RData"),
+        script=workflow.source_path(os.path.join("..", "scripts", "ideogram.R")),
+        chm13_ktype=workflow.source_path(os.path.join("..", "scripts", "chm13.karyo.RData")),
     output:
         pdf=os.path.join(OUTPUT_DIR, "{ref}/pdf/ideogram.{sm}.pdf"),
     threads: 1
