@@ -1,0 +1,18 @@
+name: R
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - bioconda::bioconductor-karyoploter
+  - bioconda::bioconductor-genomicranges
+  - r-tidyverse
+  - r-scales
+  - r-gridextra
+  - conda-forge::r-argparse
+  - conda-forge::r-data.table
+  - conda-forge::r-glue
+  - conda-forge::r-ggnewscale
+  - conda-forge::r-r.utils
+  - r-ggrepel
+  - r-cowplot

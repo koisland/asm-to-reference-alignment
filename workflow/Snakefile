@@ -14,6 +14,7 @@ TEMP_DIR = config.get("temp_dir", "/tmp")
 
 include: "rules/reference_alignment.smk"
 include: "rules/SafFire.smk"
+include: "rules/ideogram.smk"
 
 
 wildcard_constraints:
@@ -31,3 +32,12 @@ rule all:
             ref=config.get("ref").keys(),
         ),
         expand(rules.SafFire.output, sm=SAMPLES.keys(), ref=config.get("ref").keys()),
+
+
+rule ideogram:
+    input:
+        expand(
+            rules.bed_to_pdf.output,
+            sm=df["sample"].str.strip(),
+            ref=config.get("ref").keys(),
+        ),
