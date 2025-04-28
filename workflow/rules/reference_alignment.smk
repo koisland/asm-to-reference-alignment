@@ -1,5 +1,13 @@
 
 
+
+def get_mm2_opts(wc):
+    if isinstance(PARAMS, dict):
+        return PARAMS.get(wc.sm, "-x asm20 --secondary=no -s 25000 -K 8G")
+    else:
+        return PARAMS
+
+
 rule alignment:
     input:
         ref=lambda wc: REFERENCES[str(wc.ref)],
@@ -16,7 +24,7 @@ rule alignment:
         "../envs/env.yml"
     threads: config.get("aln_threads", 4)
     params:
-        mm2_opts=config.get("mm2_opts", "-x asm20 --secondary=no -s 25000 -K 8G"),
+        mm2_opts=get_mm2_opts,
     shell:
         """
         {{ minimap2 -t {threads} -a --eqx --cs \

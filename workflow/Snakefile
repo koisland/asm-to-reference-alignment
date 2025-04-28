@@ -7,6 +7,7 @@ shell.prefix(f"set -eo pipefail;")
 
 SAMPLES = config["sm"]
 REFERENCES = config["ref"]
+PARAMS = config["mm2_opts"]
 OUTPUT_DIR = config.get("output_dir", "results")
 LOGS_DIR = config.get("logs_dir", "logs")
 BENCHMARK_DIR = config.get("benchmarks_dir", "benchmarks")
