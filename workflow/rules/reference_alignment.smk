@@ -25,12 +25,13 @@ rule alignment:
     threads: config.get("aln_threads", 4)
     params:
         mm2_opts=get_mm2_opts,
+        samtools_view_flag=config.get("aln_filter_flag", 4)
     shell:
         """
         {{ minimap2 -t {threads} -a --eqx --cs \
             {params.mm2_opts} \
             {input.ref} {input.query} \
-            | samtools view -F 4 -b -;}} \
+            | samtools view -F {params.samtools_view_flag} -b -;}} \
             > {output.aln} 2> {log}
         """
 
