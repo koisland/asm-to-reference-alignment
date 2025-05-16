@@ -19,7 +19,7 @@ parser$add_argument("-a",
                     help = "bed file with all the asm mapping")
 parser$add_argument("-b", "--asm2", help = "bed file with a second asm mapping")
 parser$add_argument("-k", "--karyotype", help = "karyotype file for different genomes")
-parser$add_argument("--min", help = "minimum amount of total alginemnts between a target and query for it to appear", default = 1e6)
+parser$add_argument("--min", help = "minimum amount of total alignments between a target and query for it to appear", default = 1e6)
 parser$add_argument("-p", "--plot", help = "output plot, must have .pdf ext.", default = "~/Desktop/ideogram.pdf")
 args <- parser$parse_args()
 filename <- args$asm

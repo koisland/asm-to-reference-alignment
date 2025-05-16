@@ -13,3 +13,4 @@ mm_opts: "-x asm20 --secondary=no -s 25000 -K 8G"
 break_paf: 5000
 paired_aln_len: 250000
 break_saffire: 5000
+ideogram_min: 1e6
