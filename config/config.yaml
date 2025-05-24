@@ -2,6 +2,7 @@ temp_dir: temp
 output_dir: results
 logs_dir: logs
 benchmarks_dir: benchmarks
+# Not included
 ref:
   CHM13_V1.1: .test/ref.fa
 sm:
