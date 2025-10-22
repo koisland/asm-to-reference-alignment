@@ -20,7 +20,7 @@ parser$add_argument("-a",
 parser$add_argument("-b", "--asm2", help = "bed file with a second asm mapping")
 parser$add_argument("-k", "--karyotype", help = "karyotype file for different genomes")
 parser$add_argument("--min", help = "minimum amount of total alignments between a target and query for it to appear", default = 1e6)
-parser$add_argument("-p", "--plot", help = "output plot, must have .pdf ext.", default = "~/Desktop/ideogram.pdf")
+parser$add_argument("-p", "--plot", help = "output plot, must have .pdf ext.", default = "./ideogram.pdf")
 args <- parser$parse_args()
 filename <- args$asm
 
@@ -35,7 +35,7 @@ asmdf <- function(filename, colors, minalnsize = args$min) {
       min_start = min(start),
       max_end = max(end),
     ) %>%
-    filter(bp_aligned > minalnsize) %>%
+    filter(bp_aligned > as.numeric(minalnsize)) %>%
     merge(asmvshg) %>%
     mutate(group_num = group_indices(., query_name, chr)) %>%
     group_by(query_name, chr) %>%
@@ -45,8 +45,8 @@ asmdf <- function(filename, colors, minalnsize = args$min) {
     data.table()
   
   asmvshg$name <- asmvshg$query_name
-  print(head(asmvshg))
-  print(tail(asmvshg))
+  # print(head(asmvshg))
+  # print(tail(asmvshg))
   curcolor <- 1
   lencolors <- length(colors)
   precontig <- ""
@@ -65,7 +65,7 @@ asmdf <- function(filename, colors, minalnsize = args$min) {
   asmvshg$color <- asmcolor
   asmvshg$y <- y
   asmvshg$y1 <- asmvshg$y + .25
-  print(head(asmvshg))
+  # print(head(asmvshg))
   return(asmvshg)
 }
 
@@ -76,10 +76,6 @@ if (!is.null(args$asm2)) {
   asmvshg2 <- asmdf(args$asm2, c("#159934", "#99157a"))
   tables[[2]] = asmvshg2
 }
-tables
-
-
-cex <- 0.5
 
 print("Plotting")
 
